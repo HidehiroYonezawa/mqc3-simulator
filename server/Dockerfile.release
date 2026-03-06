@@ -1,0 +1,63 @@
+FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
+
+ARG CLANG_VERSION=18
+
+# Tools for installing LLVM.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends lsb-release software-properties-common wget
+
+# Install LLVM.
+RUN wget -O - https://apt.llvm.org/llvm.sh | bash -s -- ${CLANG_VERSION}
+RUN update-alternatives --verbose \
+    --install /usr/bin/clang          clang          /usr/lib/llvm-${CLANG_VERSION}/bin/clang 100 \
+    --slave   /usr/bin/clang++        clang++        /usr/lib/llvm-${CLANG_VERSION}/bin/clang++ \
+    --slave   /usr/bin/llvm-profdata  llvm-profdata  /usr/lib/llvm-${CLANG_VERSION}/bin/llvm-profdata \
+    --slave   /usr/bin/llvm-cov       llvm-cov       /usr/lib/llvm-${CLANG_VERSION}/bin/llvm-cov \
+    --slave   /usr/bin/asan_symbolize asan_symbolize /usr/bin/asan_symbolize-${CLANG_VERSION} \
+    --slave   /usr/bin/ld.lld         ld.lld         /usr/lib/llvm-${CLANG_VERSION}/bin/lld \
+    --slave   /usr/bin/lld            lld            /usr/lib/llvm-${CLANG_VERSION}/bin/lld \
+    --slave   /usr/bin/lld-link       lld-link       /usr/lib/llvm-${CLANG_VERSION}/bin/lld \
+    --slave   /usr/bin/wasm-ld        wasm-ld        /usr/lib/llvm-${CLANG_VERSION}/bin/lld
+ENV CC clang
+ENV CXX clang++
+
+# Tools for C++ development.
+RUN mkdir /cmake && cd /cmake \
+    && wget https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6-linux-x86_64.tar.gz \
+    && tar -xzvf cmake-3.31.6-linux-x86_64.tar.gz \
+    && ls /cmake/cmake-3.31.6-linux-x86_64/bin
+ENV PATH /cmake/cmake-3.31.6-linux-x86_64/bin:${PATH}
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git ninja-build
+
+# Tools for vcpkg.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl zip unzip tar pkg-config autoconf-archive
+
+# Install vcpkg.
+RUN cd / && git clone https://github.com/microsoft/vcpkg.git \
+    && cd /vcpkg && ./bootstrap-vcpkg.sh
+
+# Python.
+RUN apt-get update && apt-get install -y --no-install-recommends python3-pip python3-dev
+RUN pip3 install numpy scipy
+
+# Install libraries using vcpkg in manifest mode.
+COPY vcpkg.json /vcpkg
+RUN cd /vcpkg && ./vcpkg install
+
+# Copy working directory to /workspace.
+COPY . /workspace
+
+# Build bosim.
+RUN cd /workspace \
+    && cmake -S . -B build -G Ninja \
+    -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
+    -DCMAKE_TOOLCHAIN_FILE=/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release \
+    -DBOSIM_DEV_MODE=OFF -DBOSIM_USE_GPU=ON -DBOSIM_CUDA_ARCHITECTURES="90" -DBOSIM_BUILD_EXAMPLES=OFF \
+    -DBOSIM_BUILD_SERVER=ON -DBOSIM_BUILD_TESTS=OFF -DBOSIM_BUILD_BENCHMARK=OFF -DBOSIM_MEASURE_COVERAGE=OFF \
+    && cmake --build build -- -j 32 \
+    && ls build/server
+
+CMD ["--settings", "/workspace/server/.envs/local.json"]
+ENTRYPOINT ["/workspace/build/server/bosim_server"]

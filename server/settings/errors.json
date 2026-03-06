@@ -1,0 +1,22 @@
+{
+    "INVALID_PROGRAM": {
+        "code": "INVALID_PROGRAM",
+        "message": "Invalid program: {reason}."
+    },
+    "EXECUTION_FAILED": {
+        "code": "EXECUTION_FAILED",
+        "message": "Execution failed: {reason}."
+    },
+    "TIMEOUT": {
+        "code": "TIMEOUT",
+        "message": "Execution timed out. Reduce the number of shots or increase the timeout limit."
+    },
+    "INTERNAL_ERROR": {
+        "code": "INTERNAL_ERROR",
+        "message": "Internal error occurred while {when}. The issue has been logged."
+    },
+    "CRITICAL_ERROR": {
+        "code": "INTERNAL_ERROR",
+        "message": "Critical internal error. The issue has been logged."
+    }
+}

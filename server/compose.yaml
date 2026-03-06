@@ -1,0 +1,31 @@
+services:
+  bosonic-simulator:
+    network_mode: "host"
+    build:
+      context: ../
+      dockerfile: ./server/Dockerfile.release
+    container_name: bosonic-simulator
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    command: "--settings /workspace/server/.envs/local.json"
+    restart: always
+    tty: true
+    init: true
+    logging:
+      driver: "local"
+      options:
+        max-size: "20M"
+        max-file: "10"
+    secrets:
+      - scheduler_token
+    volumes:
+      - ./app-run/log:/var/log/bosonic-simulator
+      - ./app-run/backup:/var/backup/bosonic-simulator
+secrets:
+  scheduler_token:
+    file: ./security/token.txt

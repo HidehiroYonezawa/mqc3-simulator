@@ -1,0 +1,47 @@
+services:
+  bosonic-simulator:
+    build:
+      context: ../
+      dockerfile: ./server/Dockerfile.release
+    image: bosim/prod:${IMAGE_TAG}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: [ "0", "1" ]
+              capabilities: [ gpu ]
+    command: "--settings /workspace/server/.envs/prod.json"
+    restart: always
+    tty: true
+    init: true
+    logging:
+      driver: "local"
+      options:
+        max-size: "20M"
+        max-file: "10"
+    secrets:
+      - scheduler_token
+    volumes:
+      - app-log:/var/log/bosonic-simulator
+      - app-backup:/var/backup/bosonic-simulator
+
+  fluent-bit:
+    image: amazon/aws-for-fluent-bit:latest
+    volumes:
+      - app-log:/var/log/bosonic-simulator:ro
+      - ./fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - /root/.aws/credentials:/root/.aws/credentials:ro
+    command: ["/fluent-bit/bin/fluent-bit", "-c", "/fluent-bit/etc/fluent-bit.conf"]
+    restart: always
+    environment:
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+      LOG_GROUP_NAME: ${LOG_GROUP_NAME}
+      AWS_REGION: ap-northeast-1
+
+volumes:
+  app-log:
+  app-backup:
+secrets:
+  scheduler_token:
+    file: ./security/token.txt
