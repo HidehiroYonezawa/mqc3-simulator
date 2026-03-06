@@ -1,0 +1,38 @@
+FROM quay.io/pypa/manylinux_2_28_x86_64:2025.08.27-0
+LABEL description="Build portable Python wheels (manylinux_2_28) with C++-20 and CUDA 12.8"
+
+ARG CUDA_VERSION="12-8"
+ARG ARCH="x86_64"
+
+RUN dnf -y install 'dnf-command(config-manager)' && \
+    dnf config-manager --set-enabled powertools || true && \
+    dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/${ARCH}/cuda-rhel8.repo
+
+RUN dnf -y install \
+      git curl zip tar xz make which \
+      cmake ninja-build \
+      gcc gcc-c++ clang \
+      python3 python3-pip perl-IPC-Cmd \
+      gmp-devel \
+      cuda-compiler-${CUDA_VERSION}.${ARCH} \
+      cuda-libraries-${CUDA_VERSION}.${ARCH} \
+      cuda-libraries-devel-${CUDA_VERSION}.${ARCH} \
+    && dnf clean all
+
+# Set environment variables for CUDA Toolkit
+ENV PATH="/usr/local/cuda/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
+ENV CUDA_HOME=/usr/local/cuda
+ENV CUDA_ROOT=/usr/local/cuda
+ENV CUDA_PATH=/usr/local/cuda
+ENV CUDADIR=/usr/local/cuda
+
+# Install libraries using vcpkg in manifest mode.
+ENV VCPKG_FORCE_SYSTEM_BINARIES=1
+RUN git clone https://github.com/Microsoft/vcpkg.git /vcpkg \
+    && cd /vcpkg && ./bootstrap-vcpkg.sh
+COPY vcpkg.json /vcpkg/
+RUN cd /vcpkg && ./vcpkg install --clean-after-build --no-binarycaching
+
+# Clenaup.
+RUN dnf -y autoremove && dnf clean all && rm -rf /var/cache/dnf

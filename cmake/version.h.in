@@ -1,0 +1,15 @@
+#pragma once
+
+#include <fmt/format.h>
+
+// clang-format off
+#define BOSIM_VERSION_MAJOR @bosim_VERSION_MAJOR@
+#define BOSIM_VERSION_MINOR @bosim_VERSION_MINOR@
+#define BOSIM_VERSION_PATCH @bosim_VERSION_PATCH@
+// clang-format on
+
+namespace bosim {
+inline std::string GetVersion() {
+    return fmt::format("{}.{}.{}", BOSIM_VERSION_MAJOR, BOSIM_VERSION_MINOR, BOSIM_VERSION_PATCH);
+}
+}  // namespace bosim

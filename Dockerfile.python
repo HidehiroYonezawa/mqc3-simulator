@@ -1,0 +1,35 @@
+FROM ubuntu:24.04
+LABEL description="Python test environment with versions 3.10, 3.11, 3.12, and 3.13"
+
+ENV PYENV_ROOT="/root/.pyenv"
+ENV PATH="${PYENV_ROOT}/bin:${PYENV_ROOT}/shims:${PYENV_ROOT}/plugins/pyenv-virtualenv/bin:$PATH"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    gfortran \
+    git \
+    libbz2-dev \
+    libffi-dev \
+    liblapack-dev \
+    liblzma-dev \
+    libopenblas-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libssl-dev \
+    meson \
+    ninja-build \
+    pkg-config \
+    python3-pip \
+    unzip \
+    zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python
+RUN pip3 install --break-system-packages --upgrade pipenv
+RUN git clone https://github.com/pyenv/pyenv.git ${PYENV_ROOT}
+RUN echo 'eval "$(pyenv init --path)"' >> /root/.bashrc
+RUN pyenv install 3.10.17
+RUN pyenv install 3.11.12
+RUN pyenv install 3.12.10
+RUN pyenv install 3.13.3

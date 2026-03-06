@@ -1,0 +1,29 @@
+# General settings
+PROJECT_NAME          = "Bosonic simulator"
+DOXYFILE_ENCODING     = UTF-8
+INPUT_ENCODING        = UTF-8
+MARKDOWN_SUPPORT      = YES
+HAVE_DOT              = NO
+DIRECTORY_GRAPH       = NO
+CALL_GRAPH            = NO
+CALLER_GRAPH          = NO
+GENERATE_HTML         = YES
+GENERATE_LATEX        = NO
+HTML_OUTPUT           = html
+GENERATE_TREEVIEW     = NO
+DISABLE_INDEX         = NO
+FULL_SIDEBAR          = NO
+HTML_EXTRA_STYLESHEET = externals/doxygen-awesome-css/doxygen-awesome.css
+HTML_COLORSTYLE       = LIGHT
+USE_MATHJAX           = YES
+
+# Inputs
+INPUT               = README.md cmake/ docs/ examples/ server/ src/
+FILE_PATTERNS       = *.cpp *.cu *.h *.md
+EXTENSION_MAPPING   = cu=c++
+RECURSIVE           = YES
+EXTRACT_ALL         = YES
+EXTRACT_PRIVATE     = YES
+EXTRACT_STATIC      = YES
+BUILTIN_STL_SUPPORT = YES
+INLINE_INFO         = YES

@@ -1,0 +1,12 @@
+{
+    "typeCheckingMode": "basic",
+    "include": [
+        "**/*.py",
+        "**/pyproject.toml",
+        "**/*.ipynb"
+    ],
+    "exclude": [
+        "**/pb/**/*.py", // exclude protobuf generated files
+        "**/pb/**/*.pyi", // exclude protobuf generated files
+    ]
+}

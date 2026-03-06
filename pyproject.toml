@@ -1,0 +1,16 @@
+[build-system]
+requires = ["scikit-build-core >=0.11", "nanobind >=2.8"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "mqc3_simulator"
+version = "1.0.0"
+requires-python = ">=3.10"
+
+[tool.scikit-build]
+cmake.source-dir = "."
+ninja.make-fallback = false
+wheel.cmake = true
+wheel.packages = ["src/mqc3_simulator"]
+install.components = ["python_module"]
+build-dir = "build/{wheel_tag}"
