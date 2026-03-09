@@ -76,7 +76,6 @@ $ cmake --build build -- -j 8
 | [docs/](\ref docs_readme)         | プロジェクトのドキュメントを配置                     |
 | [examples/](\ref examples_readme) | ライブラリの使用例を実装                             |
 | `externals/`                      | 外部ライブラリを配置                                 |
-| `proto/`                          | サーバーの通信を定義する proto files を配置          |
 | `scripts/`                        | デプロイに関わるスクリプトを配置                     |
 | [server/](\ref server_readme)     | サーバの実装コードを配置                             |
 | [src/](\ref bosim_readme)         | ライブラリ本体を実装                                 |
