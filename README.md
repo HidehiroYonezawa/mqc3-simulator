@@ -124,7 +124,7 @@ $ cp -r docs html
 Python バインディングをインストールする場合は次のコマンドを実行する。
 
 ```sh
-SKBUILD_CMAKE_DEFINE="CMAKE_TOOLCHAIN_FILE=externals/vcpkg/scripts/buildsystems/vcpkg.cmake;CMAKE_BUILD_TYPE=Release;BOSIM_BUILD_BINDING=ON;BOSIM_USE_GPU=OFF" pip install .
+$ SKBUILD_CMAKE_DEFINE="CMAKE_TOOLCHAIN_FILE=externals/vcpkg/scripts/buildsystems/vcpkg.cmake;CMAKE_BUILD_TYPE=Release;BOSIM_BUILD_BINDING=ON;BOSIM_USE_GPU=OFF" pip install .
 ```
 
 上のコマンドは以下を仮定している。環境に応じてこれらの値は変更すること。
@@ -137,7 +137,7 @@ SKBUILD_CMAKE_DEFINE="CMAKE_TOOLCHAIN_FILE=externals/vcpkg/scripts/buildsystems/
 wheel をビルドする場合は次のコマンドを実行する。
 
 ```sh
-SKBUILD_CMAKE_DEFINE="BOSIM_BUILD_BINDING=ON" pip wheel -v -w mqc3-simulator .
+$ SKBUILD_CMAKE_DEFINE="BOSIM_BUILD_BINDING=ON" pip wheel -v -w mqc3-simulator .
 ```
 
 ### テスト
@@ -145,7 +145,7 @@ SKBUILD_CMAKE_DEFINE="BOSIM_BUILD_BINDING=ON" pip wheel -v -w mqc3-simulator .
 Python バインディングのテストを行う場合は `pytest` を使用する。
 
 ```sh
-$ pytest
+$ pytest tests
 ```
 
 
