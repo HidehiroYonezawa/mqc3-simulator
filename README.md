@@ -10,6 +10,15 @@ Bosonic simulator (bosim) は連続量量子回路を高速にシミュレート
 
 ## 環境構築
 
+### サブモジュールの初期化
+
+本リポジトリは外部ライブラリを Git Submodule として管理している。
+ビルド前に必ず以下を実行する。
+
+```sh
+$ git submodule update --init --recursive
+```
+
 ### C++/CUDA
 
 このライブラリは C++20, CUDA12.4 で実装している。
@@ -83,22 +92,20 @@ $ cmake --build build -- -j 8
 
 ## テスト
 
+一部のテストは Python (>=3.12) を使用するため、 `Pipfile` で環境構築してからテストする必要がある。
+
+```sh
+$ pipenv install
+$ pipenv shell
+```
+
 CMake のオプションを `BOSIM_BUILD_TESTS=ON` と設定すると、テストをビルドする。
 `ctest` コマンドですべてのテストを一括で実行できる。
-
-一部のテストは Python (>=3.12) を使用する。
-`Pipfile` で環境構築してから次のコマンドを実行することを推奨する。
 
 ```sh
 $ cmake -S . -B build/ -DBOSIM_BUILD_TESTS=ON
 $ cmake --build build/ -- -j 8
 $ ctest --test-dir build/
-```
-
-また、 一部 Python で実装したテストもある。
-
-```sh
-$ pytest
 ```
 
 ## ドキュメント作成
@@ -111,19 +118,35 @@ $ docker run --rm -v $(pwd):/data -it hrektts/doxygen /bin/bash -c "doxygen Doxy
 $ cp -r docs html
 ```
 
-## Python バインディングのビルド
+## Python バインディング
 
-Python バインディングは次のコマンドで wheel をビルドできる。
+Python バインディングをインストールする場合は次のコマンドを実行する。
 
 ```sh
-SKBUILD_CMAKE_DEFINE="CMAKE_TOOLCHAIN_FILE=/vcpkg/scripts/buildsystems/vcpkg.cmake;CMAKE_BUILD_TYPE=Release;BOSIM_BUILD_BINDING=ON;BOSIM_USE_GPU=ON" pip wheel -v -w mqc3-simulator .
+$ SKBUILD_CMAKE_DEFINE="CMAKE_TOOLCHAIN_FILE=externals/vcpkg/scripts/buildsystems/vcpkg.cmake;CMAKE_BUILD_TYPE=Release;BOSIM_BUILD_BINDING=ON;BOSIM_USE_GPU=OFF" pip install .
 ```
 
 上のコマンドは以下を仮定している。環境に応じてこれらの値は変更すること。
 
-- Vcpkg のパス: `/vcpkg/scripts/buildsystems/vcpkg.cmake`
-- GPU を使用する
-  - 使用しない場合は `BOSIM_USE_GPU=OFF` とする
+- Vcpkg は `externals/` 以下のものを使用する
+  - 別の場所にインストールされた Vcpkg を使用する場合は適切にパスを設定する
+- GPU を使用しない
+  - 使用する場合は `BOSIM_USE_GPU=ON` とする
+
+wheel をビルドする場合は次のコマンドを実行する。
+
+```sh
+$ SKBUILD_CMAKE_DEFINE="BOSIM_BUILD_BINDING=ON" pip wheel -v -w mqc3-simulator .
+```
+
+### テスト
+
+Python バインディングのテストを行う場合は `pytest` を使用する。
+
+```sh
+$ pytest tests
+```
+
 
 ## 運用
 
